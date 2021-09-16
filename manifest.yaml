@@ -1,0 +1,76 @@
+type: install
+name: Execute Shell Commands By Node Group
+logo: images/terminals-logo.png
+baseUrl: https://raw.githubusercontent.com/jelastic-jps/exec-cmd-by-nodegroup/main
+
+settings:
+  fields:
+    - type: list
+      name: envName
+      caption: Environment
+      required: true
+      values: []
+
+    - type: list
+      name: nodeGroups
+      caption: Node Group(s)
+      required: true
+      multiSelect: true
+      dependsOn:
+        envName: {}
+
+    - type: text
+      name: commands
+      caption: Shell Commands
+      height: 200
+      required: true
+
+onBeforeInit: |
+  var resp = jelastic.env.control.GetEnvs();
+  if (resp.result !== 0) return resp;
+  var envs = [];
+  var nodes = {};  
+
+  for (var i = 0, envInfo, env; envInfo = resp.infos[i]; i++) {
+    env = envInfo.env;
+
+    if (env.status == 1) {
+      for (var j = 0, node; node = envInfo.nodes[j]; j++) {
+        nodes[env.envName] = nodes[env.envName] || [];
+        nodes[env.envName].groups = nodes[env.envName].groups || {};
+        
+        if (!nodes[env.envName].groups[node.nodeGroup])
+          nodes[env.envName].push({
+            value: node.nodeGroup,            
+            caption: (node.displayName || node.name) + ' (' + node.nodeGroup + ')'
+          });
+        
+        nodes[env.envName].groups[node.nodeGroup] = true;
+      }
+
+      if (nodes[env.envName] && nodes[env.envName].length > 0) {
+        envs.push({
+          value: env.envName,
+          caption: (env.displayName || env.envName)
+        });
+      }
+    }
+  }
+
+  if (envs.length > 0) {
+    jps.settings.fields[0].values = envs;
+    jps.settings.fields[0].value = envs[0].value;
+    jps.settings.fields[1].dependsOn.envName = nodes;
+  }
+
+  return { result: 0, settings: jps.settings };
+
+onInstall:
+  env.control.ExecCmdByGroup [${settings.nodeGroups}]: 
+    envName: ${settings.envName}
+    commandList: 
+      - command: |-
+          ${settings.commands}
+  
+success: |
+  [See execution logs](${platformUrl}console)
