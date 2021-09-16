@@ -2,6 +2,8 @@ type: install
 name: Execute Shell Commands By Node Group
 logo: images/terminals-logo.png
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/exec-cmd-by-nodegroup/main
+description:
+  short: Execute commmands from single point on any layer
 
 settings:
   fields:
