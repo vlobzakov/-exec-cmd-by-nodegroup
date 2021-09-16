@@ -1,6 +1,7 @@
 <p align="left"> 
 <img src="images/terminals.png" width="178">
 </p>
+
 # Node Group CLI Commands Add-On
 
 This Add-On allows to execute set of shell commands on all nodes of a selected layer within an environment. In case the environment has multiple layers user may select any required or even all of them to execute commands at once.
@@ -23,7 +24,6 @@ Within the installation frame:
 
 
 > **Note:**  
-
 >   * *Shell Commands* field should contain no empty lines   
 >   * all the commands will be executed as a certified template default user
 
